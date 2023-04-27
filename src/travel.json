@@ -6,7 +6,7 @@
       "travel_starting_date": "2024-03-15T00:00:00.000+00:00",
       "travel_ending_date": "2024-03-28T00:00:00.000+00:00",
       "all_places": 20,
-      "places_left": 8
+      "places_left": 20
     },
     {
       "travel_name": "Crociere nei Caraibi",
@@ -15,7 +15,7 @@
       "travel_starting_date": "2024-02-01T00:00:00.000+00:00",
       "travel_ending_date": "2024-02-15T00:00:00.000+00:00",
       "all_places": 100,
-      "places_left": 18
+      "places_left": 100
     },
     {
       "travel_name": "Safari in Tanzania",
@@ -24,7 +24,7 @@
       "travel_starting_date": "2023-11-01T00:00:00.000+00:00",
       "travel_ending_date": "2023-11-10T00:00:00.000+00:00",
       "all_places": 12,
-      "places_left": 3
+      "places_left": 12
     },
     {
       "travel_name": "Viaggio a Marrakech",
@@ -33,7 +33,7 @@
       "travel_starting_date": "2023-11-01T00:00:00.000+00:00",
       "travel_ending_date": "2023-07-01T00:00:00.000+00:00",
       "all_places": 50,
-      "places_left": 34
+      "places_left": 50
     },
     {
       "travel_name": "Viaggio a Barcellona",
@@ -42,6 +42,6 @@
       "travel_starting_date": "2023-11-01T00:00:00.000+00:00",
       "travel_ending_date": "2023-07-24T00:00:00.000+00:00",
       "all_places": 70,
-      "places_left": 22
+      "places_left": 70
     }
   ]
