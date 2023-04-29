@@ -19,6 +19,10 @@ async function createUser(req, res) {
         body('email').isEmail().withMessage("L'email inserita non è valida"),
         body('username').notEmpty().withMessage("Il campo username non può essere vuoto"),
         body('username').isString().withMessage('Il campo username non è valido'),
+        body('name').notEmpty().withMessage("Il campo name non può essere vuoto"),
+        body('name').isString().withMessage('Il campo name non è valido'),
+        body('surname').notEmpty().withMessage("Il campo surname non può essere vuoto"),
+        body('surname').isString().withMessage('Il campo surname non è valido'),
     ];
     // Check if there are any validation errors
     await Promise.all(validationRules.map((rule) => rule.run(req)));
@@ -26,19 +30,22 @@ async function createUser(req, res) {
     if (!errors.isEmpty()) {
         return res.status(422).json({ errors: errors.array() });
     }    
-    let { email, username } = req.body;
+    let { email, username, name, surname } = req.body;
     try {
         const user = await prisma.user.create({
             data:{
                 email: email,
+                name: name,
+                surname: surname,
                 username: username,
             }
         })
         console.log(user);
+        res.status(201).send({msg:"Utente creato con successo"})
     } catch (error) {
         console.log(error);
+        return res.status(404).send({msg: "Qualcosa è andato storto. Riprova!"})
     }
-    res.status(201).send({msg:"Utente creato con successo"})
 }
 // Funzione per la modifica di email o username dell'utente
 
@@ -50,6 +57,10 @@ async function editUser (req, res){
         body('email').notEmpty().withMessage("Il campo e-mail non può essere vuoto"),
         body('username').notEmpty().withMessage("Il campo username non può essere vuoto"),
         body('username').isString().withMessage('Il campo username non è valido'),
+        body('name').notEmpty().withMessage("Il campo name non può essere vuoto"),
+        body('name').isString().withMessage('Il campo name non è valido'),
+        body('surname').notEmpty().withMessage("Il campo surname non può essere vuoto"),
+        body('surname').isString().withMessage('Il campo surname non è valido'),
     ];
     // Check if there are any validation errors
     await Promise.all(validationRules.map((rule) => rule.run(req)));
@@ -67,13 +78,15 @@ async function editUser (req, res){
     if (!user) {
         return res.status(400).send({ error: "L'id inserito non è valido" });
     }else {
-        let { email, username } = req.body;
+        let { email, username, name, surname } = req.body;
         const updateUser = await prisma.user.update({
             where:{
                 id: userid,
             }, data:{
                 username: username,
                 email: email,
+                name: name,
+                surname: surname,
             }
         })
         return res.status(200).json({data: updateUser})

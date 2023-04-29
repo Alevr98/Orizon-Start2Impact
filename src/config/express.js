@@ -12,5 +12,9 @@ app.use('/travels', travelRoutes);
 app.use('/bookings', bookingRoutes);
 
 app.listen(PORT, () => {
-    console.log('Server running');
+    console.log(`Server running on port: ${PORT}` );
 })
+
+module.exports = {
+    default: app
+  };

@@ -50,10 +50,11 @@ async function createTravel(req, res) {
             }
         })
         console.log(travel);
+        res.status(201).send({msg:"Viaggio creato con successo"})
     } catch (error) {
         console.log(error);
+        return res.status(404).send({msg: "Qualcosa è andato storto. Riprova!"})
     }
-    res.status(201).send({msg:"Viaggio creato con successo"})
 }
 // Funzione per la modifica di email o username dell'utente
 

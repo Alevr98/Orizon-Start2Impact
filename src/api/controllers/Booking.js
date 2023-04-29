@@ -93,6 +93,7 @@ async function editBooking (req, res){
     // EDIT
     let { travel_id, user_id, quantity} = req.body;
     let { bookingid } = req.params;
+    const booking = await prisma.booking.findUnique({ where: { id: bookingid } })
     let updateBooking = {};
     if(travel_id){
         updateBooking.travel_id = travel_id
@@ -103,28 +104,60 @@ async function editBooking (req, res){
     if(quantity){
         updateBooking.quantity = quantity
     }
-    // COSA MANCA ? 
-    // Non ho calcolato che se un utente cambia il travel_id devo togliere le quantità dal valore vecchio e metterle su quello nuovo. 
-    const booking = await prisma.booking.findUnique({ where: { id: bookingid } })
     try {
-        const transaction = await prisma.$transaction([
-            prisma.booking.updateMany({
-                where:{
-                    id: bookingid,
-                    isDeleted: false,            
-                },data:updateBooking,
-            }),
-            prisma.travel.updateMany({
-                where:{
-                    id:booking.travel_id,
-                    isDeleted: false,            
-                }, data:{
-                    places_left: {
-                        increment: (booking.quantity - quantity),
+        if(travel_id){
+            const transaction = await prisma.$transaction([
+                prisma.booking.updateMany({
+                    where:{
+                        id: bookingid,
+                        isDeleted: false,            
+                    },data:updateBooking,
+                }),
+                // Rimuovo il valore dal precedente viaggio
+                prisma.travel.updateMany({
+                    where:{
+                        id: booking.travel_id,
+                        isDeleted: false,            
+                    }, 
+                    data:{
+                        places_left:{
+                            increment:booking.quantity
+                        }
                     }
-                }
-            })
-        ])
+                })
+                ,
+                // Aggiorno i posti nel nuovo viaggio
+                prisma.travel.updateMany({
+                    where:{
+                        id:travel_id,
+                        isDeleted: false,            
+                    }, data:{
+                        places_left: {
+                            decrement: quantity,
+                        }
+                    }
+                })
+            ])
+        }else {
+            const transaction = await prisma.$transaction([
+                prisma.booking.updateMany({
+                    where:{
+                        id: bookingid,
+                        isDeleted: false,            
+                    },data:updateBooking,
+                }),
+                prisma.travel.updateMany({
+                    where:{
+                        id:travel_id,
+                        isDeleted: false,            
+                    }, data:{
+                        places_left: {
+                            increment: (booking.quantity - quantity),
+                        }
+                    }
+                })
+            ])
+        }
         return res.status(200).send({msg: "Prenotazione modificata con successo"})
     } catch (error) {
         console.log(error);

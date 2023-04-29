@@ -8,14 +8,18 @@ const prisma = new PrismaClient();
 truncateTableUser('User')
 for (let i = 0; i < 30; i++) {
     let username = chance.word({length: 10});
+    let nome = chance.word({length: 10});
+    let cognome = chance.word({length: 10});
     let email = chance.email();
-    addUser(email, username)
+    addUser(email, username, nome, cognome)
 }
-async function addUser (email, username){
+async function addUser (email, username, nome, cognome){
     try {
         const user = await prisma.user.create({
             data:{
                 email: email,
+                name: nome,
+                surname: cognome,
                 username: username,
             }
         })
