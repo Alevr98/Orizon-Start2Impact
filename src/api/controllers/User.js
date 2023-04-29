@@ -41,7 +41,7 @@ async function createUser(req, res) {
             }
         })
         console.log(user);
-        res.status(201).send({msg:"Utente creato con successo"})
+        res.status(201).json({msg:"Utente creato con successo", user:user})
     } catch (error) {
         console.log(error);
         return res.status(404).send({msg: "Qualcosa è andato storto. Riprova!"})

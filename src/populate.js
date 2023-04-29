@@ -5,7 +5,8 @@ const travelList = require('./travel.json')
 
 
 const prisma = new PrismaClient();
-truncateTableUser('User')
+truncateTableUser()
+truncateTableBooking()
 for (let i = 0; i < 30; i++) {
     let username = chance.word({length: 10});
     let nome = chance.word({length: 10});
@@ -47,6 +48,9 @@ async function addTravel (travel_el) {
 }
 
 
+async function truncateTableBooking () {
+await prisma.booking.deleteMany({where: {}})
+}
 async function truncateTableUser () {
 await prisma.user.deleteMany({where: {}})
 }
