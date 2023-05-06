@@ -28,7 +28,7 @@ describe('Users routes', () => {
             expect(response.statusCode).toBe(200);
         }
     })
-    test("Funzione che modifica l' specifico", async () => {
+    test("Funzione che elimina l'utente di test", async () => {
         if(testUserId){
             const response = await supertest(app).delete(`/users/${testUserId.id}`)
             expect(response.statusCode).toBe(200);
