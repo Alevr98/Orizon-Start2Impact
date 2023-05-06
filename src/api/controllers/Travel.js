@@ -50,7 +50,7 @@ async function createTravel(req, res) {
             }
         })
         console.log(travel);
-        res.status(201).send({msg:"Viaggio creato con successo"})
+        res.status(201).send({msg:"Viaggio creato con successo", travel:travel})
     } catch (error) {
         console.log(error);
         return res.status(404).send({msg: "Qualcosa è andato storto. Riprova!"})
