@@ -65,8 +65,8 @@ async function createBooking(req, res) {
             
 
         ])
-        console.log(transaction);
-        res.status(201).send({msg:"Prenotazione inserita con successo"})
+        let new_booking = transaction[0];
+        res.status(201).send({msg:"Prenotazione inserita con successo", booking:new_booking})
     } catch (error) {
         console.log(error);
         res.status(500).send({msg:"Errore durante la prenotazione"})
@@ -158,7 +158,13 @@ async function editBooking (req, res){
                 })
             ])
         }
-        return res.status(200).send({msg: "Prenotazione modificata con successo"})
+        // GET UPDATED FUNCTION
+        const updatedBooking = await prisma.booking.findFirst({
+            where:{
+                id: bookingid,
+            }
+        })
+        return res.status(200).send({msg: "Prenotazione modificata con successo", data:updatedBooking })
     } catch (error) {
         console.log(error);
         return res.status(404).send({msg: error})
@@ -227,7 +233,7 @@ async function deleteBooking (req, res) {
                         isDeleted: false,            
                     }, data:{
                         places_left: {
-                            increment: quantity,
+                            increment: booking.quantity,
                         }
                     }
                 })
