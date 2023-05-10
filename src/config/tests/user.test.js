@@ -5,6 +5,10 @@ const {app} = require('../express')
 
 describe('Users routes', () => {
     let testUserId; 
+    test('Funzione che mostra tutti gli users', async () => {
+        const response = await supertest(app).get('/users')
+        expect(response.statusCode).toBe(200);
+    })
     test('Creazione di un nuovo utente', async () => {
         const requestBody = {
             email: "user_test@email.it",
@@ -16,10 +20,6 @@ describe('Users routes', () => {
         expect(response.statusCode).toBe(201);
         expect(response.body.user.id).toBeDefined();
         testUserId = await response.body.user;
-    })
-    test('Funzione che mostra tutti gli users', async () => {
-        const response = await supertest(app).get('/users')
-        expect(response.statusCode).toBe(200);
     })
     test('Funzione che mostra un utente specifico', async () => {
         if(testUserId){

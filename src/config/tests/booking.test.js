@@ -18,8 +18,8 @@ describe('Booking routes', () => {
         const randomIndexTravel = Math.floor(Math.random() * travel.length);
         randomTravel = travel[randomIndexTravel];
         const requestBody = {
-            userid:randomUser.id,
-            travelid:randomTravel.id,
+            user_id:randomUser.id,
+            travel_id:randomTravel.id,
             quantity:1
         }
         const response = await supertest(app).post(`/bookings`).send(requestBody);
@@ -54,7 +54,6 @@ describe('Booking routes', () => {
         if(testBookingId){
             const response = await supertest(app).delete(`/bookings/${testBookingId.id}`)
             expect(response.statusCode).toBe(200);
-            console.log(testBookingId.id);
             const deleteBooking = await prisma.booking.delete({where:{id:testBookingId.id}})
         }
     })

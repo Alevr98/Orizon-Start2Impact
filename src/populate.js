@@ -5,6 +5,7 @@ const travelList = require('./travel.json')
 
 
 const prisma = new PrismaClient();
+truncateTableTravel();
 truncateTableUser()
 truncateTableBooking()
 for (let i = 0; i < 30; i++) {
@@ -30,7 +31,6 @@ async function addUser (email, username, nome, cognome){
     }
 }
 addBooking();
-truncateTableTravel();
 travelList.forEach(travel_el => {
     addTravel(travel_el);
 })
