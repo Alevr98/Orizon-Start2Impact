@@ -16,10 +16,10 @@ async function getBookingList(req, res) {
 
 async function createBooking(req, res) {
     const validationRules = [
-        body('userid').isMongoId().withMessage("Lo userid inserito non è valido"),
-        body('userid').notEmpty().withMessage("Il campo 'userid' non può essere vuoto"),
-        body('travelid').isMongoId().withMessage("Il travelid inserito non è valido"),
-        body('travelid').notEmpty().withMessage("Il campo 'travelid' non può essere vuoto"),
+        body('user_id').isMongoId().withMessage("Lo user_id inserito non è valido"),
+        body('user_id').notEmpty().withMessage("Il campo 'user_id' non può essere vuoto"),
+        body('travel_id').isMongoId().withMessage("Il travel_id inserito non è valido"),
+        body('travel_id').notEmpty().withMessage("Il campo 'travel_id' non può essere vuoto"),
         body('quantity').isNumeric().withMessage("Il campo 'quantity' non è valido"),
         body('quantity').notEmpty().withMessage("Il campo 'quantity' non può essere vuoto"),
     ];
@@ -29,20 +29,20 @@ async function createBooking(req, res) {
     if (!errors.isEmpty()) {
         return res.status(422).json({ errors: errors.array() });
     }    
-    let { userid, travelid, quantity } = req.body;
+    let { user_id, travel_id, quantity } = req.body;
     // Controllo se esiste lo user id inserito
-    const user = await prisma.user.findUnique({ where: { id: userid } })
+    const user = await prisma.user.findUnique({ where: { id: user_id } })
     if(!user){
         return res.status(404).json({ error: 'Lo user inserito non esiste' })
     }
     // Controllo se esiste il travel id 
-    const travel = await prisma.travel.findUnique({ where: { id: travelid } })
+    const travel = await prisma.travel.findUnique({ where: { id: travel_id } })
     if(!travel){
         return res.status(404).json({ error: 'Il viaggio inserito non esiste' })
     }
     // Controllo se ci sono abbastanza posti disponibili
     let updatedPlaces = Number(travel.places_left) - Number(quantity);
-    if(updatedPlaces > travel.all_places){
+    if(updatedPlaces < 0){
         return res.status(404).json({ error: 'Non vi sono abbastanza posti disponibili per questo viaggio' })
     }
     // Eseguo una transaction per essere sicuro dell'effettivo update di ogni tabella
@@ -50,14 +50,14 @@ async function createBooking(req, res) {
         const transaction = await prisma.$transaction([
             prisma.booking.create({
                 data:{
-                    user_id : userid,
-                    travel_id : travelid,
+                    user_id : user_id,
+                    travel_id : travel_id,
                     quantity : quantity,
                 }
             }),
             prisma.travel.update({
                 where:{
-                    id: travelid,
+                    id: travel_id,
                 }, data:{
                     places_left : updatedPlaces,
                 }
@@ -242,9 +242,70 @@ async function deleteBooking (req, res) {
         } catch (error) {
             console.log(error);
         return res.status(404).send({msg: "Qualcosa è andato storto. Riprova!"})
-            
-        }
+        
     }
 }
-
-module.exports = {getBookingList, createBooking, editBooking, getBooking, deleteBooking}
+}
+async function sortByBookingDate(req, res) {
+    const validationRules = [
+        check('bookingdate').isDate().withMessage("Il campo bookingdate non è valido"),
+        check('bookingdate').notEmpty().withMessage("Inserisci la data della prenotazione"),
+    ];
+    // Check if there are any validation errors
+    await Promise.all(validationRules.map((rule) => rule.run(req)));
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    } 
+    try {
+        let bookingdate = new Date(req.params.bookingdate)
+        const startDate = new Date(bookingdate.getFullYear(), bookingdate.getMonth(), bookingdate.getDate());
+        const endDate = new Date(bookingdate.getFullYear(), bookingdate.getMonth(), bookingdate.getDate() + 1);    
+        const resultBookings = await prisma.booking.findMany({where:{
+            createdAt:{
+                gte: startDate.toISOString(),
+                lt: endDate.toISOString(),
+            },
+            isDeleted:false,
+        }})
+        if(resultBookings.length > 0){
+            return res.status(200).send({data: resultBookings})
+        }else {
+            return res.status(200).send({msg: "Nessuna prenotazione trovata per la data inserita"})
+        }
+    } catch (error) {
+        return res.status(404).send({msg: "Qualcosa è andato storto. Riprova!"})
+    }
+} 
+async function bookingByTravel(req, res) {
+    const validationRules = [
+        check('travelid').isMongoId().withMessage("Il campo con travel id non è valido"),
+        check('travelid').notEmpty().withMessage("Inserisci l'id della viaggio"),
+    ];
+    // Check if there are any validation errors
+    await Promise.all(validationRules.map((rule) => rule.run(req)));
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    } 
+    // Check id validity
+    const {travelid} = req.params;
+    const travel = await prisma.travel.findUnique({ where: { id: travelid } })
+    if(!travel){
+        return res.status(404).json({ error: "L'id del viaggio inserito non esiste" })
+    }
+    try { 
+        const resultBookings = await prisma.booking.findMany({where:{
+            travel_id: travelid,
+            isDeleted:false,
+        }})
+        if(resultBookings.length > 0){
+            return res.status(200).send({data: resultBookings})
+        }else {
+            return res.status(200).send({msg: "Nessuna prenotazione trovata per il viaggio inserito"})
+        }
+    } catch (error) {
+        return res.status(404).send({msg: "Qualcosa è andato storto. Riprova!"})
+    }
+} 
+module.exports = {getBookingList, createBooking, editBooking, getBooking, deleteBooking, sortByBookingDate, bookingByTravel}

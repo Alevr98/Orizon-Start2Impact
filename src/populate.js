@@ -29,6 +29,7 @@ async function addUser (email, username, nome, cognome){
         console.log(error);
     }
 }
+addBooking();
 truncateTableTravel();
 travelList.forEach(travel_el => {
     addTravel(travel_el);
@@ -45,6 +46,33 @@ async function addTravel (travel_el) {
             places_left: travel_el.places_left,
         }
     })
+}
+
+async function addBooking () {
+    // GET RANDOM USER
+    const users = await prisma.user.findMany({
+        take:10,
+        where:{
+            isDeleted:false,
+        }
+    })
+    const randomIndexUser = Math.floor(Math.random() * users.length);
+    const user = users[randomIndexUser];
+    
+    // GET RANDOM TRAVEL
+    const travels = await prisma.travel.findMany({
+        take:10,
+        where:{
+            isDeleted:false,
+        }
+    })
+    const randomIndexTravel = Math.floor(Math.random() * travels.length);
+    const travel = users[randomIndexTravel];
+    const newBooking = await prisma.booking.create({data:{
+        travel_id: travel.id,
+        user_id: user.id,
+        quantity: 1,
+    }})
 }
 
 

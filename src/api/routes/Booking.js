@@ -3,15 +3,19 @@ const express = require('express')
 const router = express.Router();
 const BookingController = require('../controllers/Booking');
 
-// GET USERS LIST
+// GET BOOKING LIST
 router.get('/', BookingController.getBookingList)
-// CREATE USER
+// CREATE BOOKING
 router.post('/', BookingController.createBooking)
-// EDIT USER
+// EDIT BOOKING
 router.patch('/:bookingid', BookingController.editBooking)
-// GET SINGLE USER
+// GET SINGLE BOOKING
 router.get('/:bookingid', BookingController.getBooking)
-// DELETE USER
+// DELETE BOOKING
 router.delete('/:bookingid', BookingController.deleteBooking)
+// GET BOOKING SEARCHING FOR DATE
+router.get('/sort-by-date/:bookingdate', BookingController.sortByBookingDate)
+// GET BOOKING SEARCHING FOR DATE
+router.get('/sort-by-travel/:travelid', BookingController.bookingByTravel)
 
 module.exports = router;
