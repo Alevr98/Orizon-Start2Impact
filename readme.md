@@ -1,4 +1,4 @@
-### Configuration guidel
+### Configuration guide
 
 ```
 git clone https://github.com/Alevr98/Orizon-Start2Impact.git
